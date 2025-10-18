@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Fortune - Penyusuan Susu Ibu</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            color: #333;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            padding: 15px 15px;
+            border-radius: 15px;
+            box-shadow: 
+                0 15px 35px rgba(102, 126, 234, 0.4),
+                0 5px 15px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: headerShine 3s infinite;
+        }
+
+        @keyframes headerShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header h1 {
+            color: #ffffff;
+            margin: 0 0 8px 0;
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 30px;
+            flex: 1;
+            align-items: flex-start;
+        }
+
+        .wheel-section {
+            flex: 2;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .question-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 3px solid #3498db;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .game-end-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 3px solid #27ae60;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: none;
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin: 20px auto;
+            perspective: 1000px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 
+                0 0 0 8px #fff,
+                0 0 0 12px #ddd,
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .wheel::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background: #2c3e50;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .wheel-names {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .name-segment {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 20px;
+            transform-origin: 0 0;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 80px;
+            writing-mode: horizontal-tb;
+            text-orientation: mixed;
+            transition: all 0.3s ease;
+        }
+
+        .selected-segment {
+            animation: blinkSegment 2s ease-in-out;
+            z-index: 15;
+        }
+
+        @keyframes blinkSegment {
+            0%, 100% { 
+                color: white; 
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+                transform: scale(1);
+            }
+            25%, 75% { 
+                color: #ffff00; 
+                text-shadow: 
+                    0 0 10px #ffff00,
+                    0 0 20px #ffff00,
+                    0 0 30px #ffff00,
+                    2px 2px 4px rgba(0, 0, 0, 0.8);
+                transform: scale(1.2);
+            }
+            50% { 
+                color: #ff6b6b; 
+                text-shadow: 
+                    0 0 15px #ff6b6b,
+                    0 0 25px #ff6b6b,
+                    0 0 35px #ff6b6b,
+                    2px 2px 4px rgba(0, 0, 0, 0.8);
+                transform: scale(1.3);
+            }
+        }
+
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #e74c3c;
+            z-index: 5;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        .controls {
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 8px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 15px rgba(52, 152, 219, 0.4),
+                0 4px 8px rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            animation: jelly 0.6s ease-in-out infinite;
+            box-shadow: 
+                0 12px 25px rgba(52, 152, 219, 0.5),
+                0 6px 12px rgba(0, 0, 0, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes jelly {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-2px) scale(1.02, 0.98); }
+            50% { transform: translateY(-1px) scale(0.98, 1.02); }
+            75% { transform: translateY(-3px) scale(1.01, 0.99); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .btn:active {
+            animation: none;
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 
+                0 2px 5px rgba(52, 152, 219, 0.3),
+                0 1px 3px rgba(0, 0, 0, 0.2),
+                inset 0 3px 6px rgba(0, 0, 0, 0.3),
+                inset 0 -1px 2px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .game-info, .question-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stars {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .star {
+            color: #f39c12;
+            margin: 0 2px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .time-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .time-btn {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .time-btn.active {
+            background: linear-gradient(45deg, #e67e22, #d35400);
+            transform: scale(1.1);
+        }
+
+        .question-panel {
+            min-height: 200px;
+        }
+
+        .question {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .answer-btn {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .answer-btn:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .players-list {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .feedback-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .feedback-toast.show {
+            transform: translateX(0);
+        }
+
+        .feedback-toast.success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+        }
+
+        .feedback-toast.error {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .feedback-toast.warning {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .game-area {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .header {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .wheel-section, .game-info, .question-panel {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                margin: 5px;
+            }
+            
+            .time-selector {
+                gap: 5px;
+            }
+            
+            .time-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .players-list {
+                padding: 15px;
+                margin-top: 15px;
+            }
+            
+            .feedback-toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                transform: translateY(-100px);
+            }
+            
+            .feedback-toast.show {
+                transform: translateY(0);
+            }
+            
+            .modal-content {
+                margin: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎯 RODA KESIHATAN PENYUSUAN IBU</h1>
+            <p>PERMAINAN EDUKASI PENYUSUAN SUSU IBU</p>
+        </header>
+
+        <div class="game-area">
+            <div class="wheel-section">
+                <div class="question-overlay" id="questionOverlay">
+                    <div id="overlayContent"></div>
+                </div>
+                
+                <div class="game-end-overlay" id="gameEndOverlay">
+                    <div id="gameEndContent"></div>
+                </div>
+                
+                <div class="wheel-container">
+                    <div class="pointer"></div>
+                    <div class="wheel" id="wheel">
+                        <div class="wheel-names" id="wheelNames"></div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" onclick="showAddPlayerModal()" id="addPlayerBtn">➕ Masukkan Nama</button>
+                    <button class="btn btn-success" onclick="spinWheel()" id="spinBtn">🎲 Putar Roda</button>
+                    <button class="btn btn-danger" onclick="exitGame()" id="exitBtn" style="display: none;">🚪 Keluar</button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="game-info">
+                    <div class="timer" id="timer">5:00</div>
+                    <div class="stars" id="stars">
+                        <span>Bintang: </span>
+                        <span id="starCount">0</span> ⭐
+                    </div>
+                    
+                    <div class="time-selector">
+                        <button class="time-btn" onclick="setGameTime(1)">1 Min</button>
+                        <button class="time-btn" onclick="setGameTime(3)">3 Min</button>
+                        <button class="time-btn active" onclick="setGameTime(5)">5 Min</button>
+                        <button class="time-btn" onclick="setGameTime(10)">10 Min</button>
+                        <button class="time-btn" onclick="setGameTime(20)">20 Min</button>
+                        <button class="time-btn" onclick="setGameTime(30)">30 Min</button>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="startGame()" id="startBtn">🚀 Mula Permainan</button>
+                    <button class="btn btn-danger" onclick="resetGame()">🔄 Set Semula</button>
+                </div>
+
+                <div class="question-panel" id="questionPanel">
+                    <h3>Panel Soalan</h3>
+                    <p>Putar roda untuk memilih pemain dan menjawab soalan!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="players-list">
+            <h3>📋 Senarai Pemain</h3>
+            <div id="playersList"></div>
+        </div>
+    </div>
+
+    <!-- Modal untuk menambah pemain -->
+    <div class="modal" id="addPlayerModal">
+        <div class="modal-content">
+            <h3>Masukkan Nama Pemain</h3>
+            <p style="color: #7f8c8d; font-size: 14px; margin: 10px 0;">Maksimum 10 pemain dibenarkan</p>
+            <div class="input-group">
+                <input type="text" id="playerNameInput" placeholder="Nama pemain..." maxlength="15">
+            </div>
+            <button class="btn btn-success" onclick="addPlayer()">Tambah</button>
+            <button class="btn" onclick="closeModal()">Batal</button>
+        </div>
+    </div>
+
+    <!-- Modal untuk jawapan salah -->
+    <div class="modal" id="wrongAnswerModal">
+        <div class="modal-content" style="background: linear-gradient(135deg, #ffb3ba, #ffdfba); border: 3px solid #e74c3c;">
+            <div style="font-size: 3rem; margin-bottom: 15px;">❌</div>
+            <h3 style="color: #e74c3c; margin-bottom: 15px;">Jawapan Salah!</h3>
+            <div id="correctAnswerText" style="font-size: 1.1rem; color: #2c3e50; font-weight: bold; margin-bottom: 20px;"></div>
+            <div style="font-size: 2rem;">💡</div>
+        </div>
+    </div>
+
+    <!-- Modal untuk pemain terpilih -->
+    <div class="modal" id="selectedPlayerModal">
+        <div class="modal-content" style="background: linear-gradient(135deg, #a8e6cf, #dcedc1); border: 3px solid #27ae60;">
+            <div style="font-size: 3rem; margin-bottom: 15px;">🎯</div>
+            <h3 style="color: #27ae60; margin-bottom: 15px;">Pemain Terpilih!</h3>
+            <div id="selectedPlayerName" style="font-size: 1.5rem; color: #2c3e50; font-weight: bold;"></div>
+        </div>
+    </div>
+
+    <!-- Modal untuk masa tamat -->
+    <div class="modal" id="timeoutModal">
+        <div class="modal-content" style="background: linear-gradient(135deg, #ffd93d, #ff6b6b); border: 3px solid #f39c12;">
+            <div style="font-size: 3rem; margin-bottom: 15px;">⏰</div>
+            <h3 style="color: #e67e22; margin-bottom: 15px;">Masa Tamat!</h3>
+            <p style="font-size: 1.1rem; color: #2c3e50; font-weight: bold;">Anda tidak memberi jawapan.</p>
+            <p style="color: #7f8c8d;">Giliran anda terlepas!</p>
+        </div>
+    </div>
+
+    <script>
+        // Data permainan
+        let players = [];
+        let gameTime = 5; // minit
+        let timeLeft = 300; // saat
+        let gameActive = false;
+        let currentPlayer = null;
+        let gameTimer = null;
+        let totalStars = 0;
+        let usedQuestions = [];
+        let questionTimer = null;
+        let currentQuestion = null;
+
+        // 50 soalan berkaitan penyusuan susu ibu
+        const questions = [
+            {
+                question: "Berapa lama tempoh penyusuan susu ibu yang disyorkan oleh WHO?",
+                answers: ["6 bulan eksklusif, kemudian hingga 2 tahun", "1 tahun sahaja"],
+                correct: 0
+            },
+            {
+                question: "Apakah kandungan utama dalam kolostrum?",
+                answers: ["Antibodi dan protein tinggi", "Gula dan lemak tinggi"],
+                correct: 0
+            },
+            {
+                question: "Bila masa terbaik untuk memulakan penyusuan susu ibu?",
+                answers: ["Dalam 1 jam selepas kelahiran", "Selepas 6 jam kelahiran"],
+                correct: 0
+            },
+            {
+                question: "Berapa kerap bayi perlu disusukan pada minggu pertama?",
+                answers: ["8-12 kali sehari", "4-6 kali sehari"],
+                correct: 0
+            },
+            {
+                question: "Apakah tanda bayi mendapat susu yang mencukupi?",
+                answers: ["Kencing 6-8 kali sehari", "Tidur sepanjang masa"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah ibu yang sakit menyusukan bayi?",
+                answers: ["Ya, kebanyakan penyakit tidak menghalang", "Tidak, mesti berhenti sementara"],
+                correct: 0
+            },
+            {
+                question: "Apakah posisi penyusuan yang betul?",
+                answers: ["Bayi menghadap ibu, perut ke perut", "Bayi menghadap ke atas"],
+                correct: 0
+            },
+            {
+                question: "Berapa lama setiap sesi penyusuan biasanya?",
+                answers: ["15-45 minit", "5-10 minit"],
+                correct: 0
+            },
+            {
+                question: "Apakah yang perlu dilakukan jika puting lecet?",
+                answers: ["Betulkan posisi dan teruskan menyusu", "Berhenti menyusu sementara"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah susu ibu disimpan dalam peti sejuk?",
+                answers: ["Ya, hingga 3-5 hari", "Tidak, mesti diminum serta-merta"],
+                correct: 0
+            },
+            {
+                question: "Apakah tanda bayi lapar?",
+                answers: ["Menggerakkan mulut, menghisap jari", "Menangis kuat sahaja"],
+                correct: 0
+            },
+            {
+                question: "Perlukah bayi diberi air dalam 6 bulan pertama?",
+                answers: ["Tidak perlu jika menyusu eksklusif", "Ya, perlu diberi air"],
+                correct: 0
+            },
+            {
+                question: "Apakah kebaikan susu ibu untuk bayi?",
+                answers: ["Perlindungan dari jangkitan dan nutrisi sempurna", "Hanya untuk kenyang sahaja"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah ibu makan pedas semasa menyusu?",
+                answers: ["Ya, tidak menjejaskan bayi", "Tidak, akan menjejaskan bayi"],
+                correct: 0
+            },
+            {
+                question: "Apakah yang dimaksudkan dengan 'let-down reflex'?",
+                answers: ["Refleks pengeluaran susu", "Refleks bayi menolak susu"],
+                correct: 0
+            },
+            {
+                question: "Berapa banyak susu yang perlu dipam untuk simpanan?",
+                answers: ["2-4 oz setiap sesi", "8-10 oz setiap sesi"],
+                correct: 0
+            },
+            {
+                question: "Apakah tanda mastitis?",
+                answers: ["Payudara bengkak, merah dan sakit", "Susu berkurang sahaja"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah ibu mengambil ubat semasa menyusu?",
+                answers: ["Perlu rujuk doktor dahulu", "Semua ubat selamat"],
+                correct: 0
+            },
+            {
+                question: "Apakah growth spurt pada bayi?",
+                answers: ["Tempoh bayi menyusu lebih kerap", "Bayi berhenti menyusu"],
+                correct: 0
+            },
+            {
+                question: "Bila bayi mula boleh minum dari cawan?",
+                answers: ["Sekitar 6 bulan", "Selepas 1 tahun"],
+                correct: 0
+            },
+            {
+                question: "Apakah foremilk dan hindmilk?",
+                answers: ["Susu awal (cair) dan susu akhir (pekat)", "Susu pagi dan susu malam"],
+                correct: 0
+            },
+            {
+                question: "Perlukah bayi bersendawa selepas menyusu?",
+                answers: ["Ya, untuk keluarkan angin", "Tidak perlu"],
+                correct: 0
+            },
+            {
+                question: "Apakah cluster feeding?",
+                answers: ["Menyusu berkumpulan dalam masa singkat", "Menyusu sekali sahaja sehari"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah susu ibu dipanaskan dalam microwave?",
+                answers: ["Tidak, akan rosak nutrisi", "Ya, cara terpantas"],
+                correct: 0
+            },
+            {
+                question: "Apakah tanda bayi kenyang?",
+                answers: ["Lepaskan puting sendiri, kelihatan puas", "Menangis kuat"],
+                correct: 0
+            },
+            {
+                question: "Berapa lama susu ibu boleh tahan pada suhu bilik?",
+                answers: ["4-6 jam", "24 jam"],
+                correct: 0
+            },
+            {
+                question: "Apakah yang perlu dilakukan jika susu tersumbat?",
+                answers: ["Urut lembut dan teruskan menyusu", "Berhenti menyusu"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah ibu berpuasa semasa menyusu?",
+                answers: ["Boleh, tetapi perlu jaga pemakanan", "Tidak boleh langsung"],
+                correct: 0
+            },
+            {
+                question: "Apakah nipple confusion?",
+                answers: ["Bayi keliru antara puting dan botol", "Bayi tidak suka menyusu"],
+                correct: 0
+            },
+            {
+                question: "Bila perlu mula memperkenalkan makanan pejal?",
+                answers: ["Sekitar 6 bulan", "Selepas 1 tahun"],
+                correct: 0
+            },
+            {
+                question: "Apakah tanda bayi cukup susu?",
+                answers: ["Berat badan naik, najis kuning", "Tidur sepanjang masa"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah ibu minum kopi semasa menyusu?",
+                answers: ["Boleh, tetapi hadkan 1-2 cawan", "Tidak boleh langsung"],
+                correct: 0
+            },
+            {
+                question: "Apakah kebaikan skin-to-skin contact?",
+                answers: ["Tingkatkan bonding dan pengeluaran susu", "Hanya untuk kehangatan"],
+                correct: 0
+            },
+            {
+                question: "Perlukah ibu diet ketat semasa menyusu?",
+                answers: ["Tidak, perlu pemakanan seimbang", "Ya, untuk kurus cepat"],
+                correct: 0
+            },
+            {
+                question: "Apakah yang dimaksudkan dengan exclusive breastfeeding?",
+                answers: ["Hanya susu ibu tanpa makanan/minuman lain", "Susu ibu + air sahaja"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah bayi tidur dengan ibu semasa menyusu?",
+                answers: ["Boleh jika ikut garis panduan keselamatan", "Tidak boleh langsung"],
+                correct: 0
+            },
+            {
+                question: "Apakah tanda bayi tidak mendapat susu yang cukup?",
+                answers: ["Kencing kurang, berat turun", "Menangis kadang-kadang"],
+                correct: 0
+            },
+            {
+                question: "Berapa kerap perlu tukar lampin bayi yang menyusu?",
+                answers: ["6-8 kali sehari", "2-3 kali sehari"],
+                correct: 0
+            },
+            {
+                question: "Apakah yang perlu dilakukan jika bayi menolak menyusu?",
+                answers: ["Periksa posisi dan cuba lagi", "Beri susu formula"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah ibu bersenam semasa menyusu?",
+                answers: ["Ya, senaman sederhana baik", "Tidak, akan kurangkan susu"],
+                correct: 0
+            },
+            {
+                question: "Apakah perbezaan susu ibu dan susu formula?",
+                answers: ["Susu ibu ada antibodi dan mudah hadam", "Tiada perbezaan"],
+                correct: 0
+            },
+            {
+                question: "Bila perlu berhenti menyusu sepenuhnya?",
+                answers: ["Mengikut keinginan ibu dan anak", "Mesti berhenti pada 1 tahun"],
+                correct: 0
+            },
+            {
+                question: "Apakah kesan merokok terhadap penyusuan?",
+                answers: ["Kurangkan pengeluaran dan kualiti susu", "Tiada kesan"],
+                correct: 0
+            },
+            {
+                question: "Perlukah ibu minum susu untuk menghasilkan susu?",
+                answers: ["Tidak wajib, yang penting pemakanan seimbang", "Ya, mesti minum susu"],
+                correct: 0
+            },
+            {
+                question: "Apakah tanda ibu perlu bantuan laktasi?",
+                answers: ["Sakit berterusan, bayi tidak naik berat", "Bila rasa penat sahaja"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah susu ibu bercampur dengan susu formula?",
+                answers: ["Tidak digalakkan, beri berasingan", "Ya, boleh campur"],
+                correct: 0
+            },
+            {
+                question: "Apakah manfaat penyusuan untuk ibu?",
+                answers: ["Kurangkan risiko kanser, bantu kurus", "Tiada manfaat khusus"],
+                correct: 0
+            },
+            {
+                question: "Berapa lama tempoh cuti bersalin yang disyorkan?",
+                answers: ["Sekurang-kurangnya 14 minggu", "4 minggu sudah cukup"],
+                correct: 0
+            },
+            {
+                question: "Apakah yang perlu ada dalam bilik bayi?",
+                answers: ["Kerusi menyusu yang selesa", "Televisyen untuk hiburan"],
+                correct: 0
+            },
+            {
+                question: "Bolehkah ibu bekerja sambil menyusu?",
+                answers: ["Ya, dengan sokongan tempat kerja", "Tidak boleh, mesti pilih satu"],
+                correct: 0
+            }
+        ];
+
+        // Fungsi untuk menunjukkan modal tambah pemain
+        function showAddPlayerModal() {
+            document.getElementById('addPlayerModal').style.display = 'flex';
+            document.getElementById('playerNameInput').focus();
+        }
+
+        // Fungsi untuk menutup modal
+        function closeModal() {
+            document.getElementById('addPlayerModal').style.display = 'none';
+            document.getElementById('playerNameInput').value = '';
+        }
+
+        // Fungsi untuk menambah pemain
+        function addPlayer() {
+            const nameInput = document.getElementById('playerNameInput');
+            const name = nameInput.value.trim();
+            
+            if (players.length >= 10) {
+                showFeedback('❌ Maksimum 10 pemain sahaja!', 'error');
+                return;
+            }
+            
+            if (!name) {
+                showFeedback('⚠️ Sila masukkan nama pemain!', 'warning');
+                return;
+            }
+            
+            if (players.find(p => p.name === name)) {
+                showFeedback('⚠️ Nama pemain sudah wujud!', 'warning');
+                return;
+            }
+            
+            players.push({
+                name: name,
+                stars: 0
+            });
+            updatePlayersDisplay();
+            updateWheel();
+            closeModal();
+            showFeedback(`✅ ${name} berjaya ditambah!`, 'success');
+        }
+
+        // Event listener untuk Enter key pada input nama
+        document.getElementById('playerNameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+
+        // Fungsi untuk mengemas kini paparan pemain
+        function updatePlayersDisplay() {
+            const playersList = document.getElementById('playersList');
+            if (players.length === 0) {
+                playersList.innerHTML = '<p>Belum ada pemain. Klik "Masukkan Nama" untuk menambah pemain.</p>';
+                return;
+            }
+
+            const sortedPlayers = [...players].sort((a, b) => b.stars - a.stars);
+            playersList.innerHTML = sortedPlayers.map((player, index) => `
+                <div class="player-item">
+                    <span>${index + 1}. ${player.name}</span>
+                    <span>${player.stars} ⭐</span>
+                </div>
+            `).join('');
+        }
+
+        // Fungsi untuk mengemas kini roda
+        function updateWheel() {
+            const wheel = document.getElementById('wheel');
+            const wheelNames = document.getElementById('wheelNames');
+            wheelNames.innerHTML = '';
+            
+            if (players.length === 0) {
+                wheel.style.background = '#ddd';
+                return;
+            }
+
+            const anglePerSegment = 360 / players.length;
+            
+            // Warna dinamik berdasarkan bilangan pemain
+            const colors = [
+                '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57',
+                '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43',
+                '#a55eea', '#26de81', '#fd79a8', '#fdcb6e', '#6c5ce7'
+            ];
+            
+            // Buat gradient berdasarkan bilangan pemain
+            let gradientStops = [];
+            for (let i = 0; i < players.length; i++) {
+                const startAngle = i * anglePerSegment;
+                const endAngle = (i + 1) * anglePerSegment;
+                gradientStops.push(`${colors[i % colors.length]} ${startAngle}deg ${endAngle}deg`);
+            }
+            
+            wheel.style.background = `conic-gradient(${gradientStops.join(', ')})`;
+            
+            // Kira saiz font berdasarkan bilangan pemain
+            let fontSize = 12;
+            if (players.length > 5) fontSize = 10;
+            if (players.length > 8) fontSize = 8;
+            if (players.length > 10) fontSize = 7;
+            
+            players.forEach((player, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'name-segment';
+                segment.textContent = player.name;
+                // Betulkan kedudukan nama supaya sejajar dengan penanda
+                const rotationAngle = (index * anglePerSegment) + (anglePerSegment / 2);
+                segment.style.transform = `rotate(${rotationAngle}deg)`;
+                segment.style.fontSize = `${fontSize}px`;
+                wheelNames.appendChild(segment);
+            });
+        }
+
+        // Fungsi untuk menetapkan masa permainan
+        function setGameTime(minutes) {
+            if (gameActive) {
+                showFeedback('⚠️ Tidak boleh tukar masa semasa permainan aktif!', 'warning');
+                return;
+            }
+            
+            gameTime = minutes;
+            timeLeft = minutes * 60;
+            updateTimerDisplay();
+            
+            // Update active button
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            showFeedback(`⏰ Masa permainan ditetapkan: ${minutes} minit`, 'success');
+        }
+
+        // Fungsi untuk mengemas kini paparan timer
+        function updateTimerDisplay() {
+            // Pastikan timeLeft tidak negatif
+            const safeTimeLeft = Math.max(0, timeLeft);
+            const minutes = Math.floor(safeTimeLeft / 60);
+            const seconds = safeTimeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Tukar warna timer jika masa kurang dari 1 minit
+            const timerElement = document.getElementById('timer');
+            if (safeTimeLeft <= 60 && safeTimeLeft > 0) {
+                timerElement.style.color = '#e74c3c';
+                timerElement.style.animation = 'pulse 1s infinite';
+            } else if (safeTimeLeft === 0) {
+                timerElement.style.color = '#c0392b';
+                timerElement.style.animation = 'none';
+            } else {
+                timerElement.style.color = '#e74c3c';
+                timerElement.style.animation = 'none';
+            }
+        }
+
+        // Fungsi untuk memulakan permainan
+        function startGame() {
+            if (players.length === 0) {
+                showFeedback('⚠️ Sila tambah sekurang-kurangnya 1 pemain!', 'warning');
+                return;
+            }
+
+            gameActive = true;
+            document.getElementById('startBtn').textContent = '⏸️ Permainan Aktif';
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('addPlayerBtn').style.display = 'none';
+            document.getElementById('exitBtn').style.display = 'none';
+            
+            // Sembunyikan overlay jika ada
+            document.getElementById('gameEndOverlay').style.display = 'none';
+            
+            // Reset stars and used questions
+            players.forEach(player => player.stars = 0);
+            totalStars = 0;
+            usedQuestions = [];
+            updatePlayersDisplay();
+            updateStarsDisplay();
+            
+            showFeedback('🚀 Permainan dimulakan! Selamat bermain!', 'success');
+            
+            // Start timer
+            gameTimer = setInterval(() => {
+                if (gameActive && timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(gameTimer);
+                        endGame();
+                    }
+                } else {
+                    clearInterval(gameTimer);
+                }
+            }, 1000);
+        }
+
+        // Fungsi untuk mengakhiri permainan
+        function endGame() {
+            gameActive = false;
+            timeLeft = 0; // Pastikan masa ditetapkan kepada 0
+            clearInterval(gameTimer);
+            clearTimeout(questionTimer);
+            updateTimerDisplay(); // Kemaskini paparan timer
+            
+            // Sembunyikan overlay soalan jika masih terbuka
+            document.getElementById('questionOverlay').style.display = 'none';
+            
+            document.getElementById('startBtn').textContent = '🚀 Mula Permainan';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('exitBtn').style.display = 'inline-block';
+            
+            // Susun pemain mengikut bintang (tertinggi ke terendah)
+            const sortedPlayers = [...players].sort((a, b) => b.stars - a.stars);
+            const winner = sortedPlayers[0];
+            
+            // Tunjukkan overlay penyata permainan
+            const gameEndContent = document.getElementById('gameEndContent');
+            gameEndContent.innerHTML = `
+                <div style="display: flex; gap: 15px; height: 100%;">
+                    <!-- Bahagian Kiri: Juara -->
+                    <div style="flex: 1; display: flex; flex-direction: column;">
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <h2 style="color: #27ae60; font-size: 14px; margin-bottom: 5px;">🏆 PERMAINAN TAMAT!</h2>
+                            <div style="font-size: 2.5rem; margin: 10px 0;">🎉</div>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #a8e6cf, #dcedc1); padding: 20px; border-radius: 15px; border: 3px solid #27ae60; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                            <h3 style="color: #27ae60; font-size: 14px; margin-bottom: 10px; text-align: center;">JUARA KESELURUHAN</h3>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2.5rem; margin: 10px 0;">👑</div>
+                                <h2 style="color: #2c3e50; font-size: 1.8rem; margin-bottom: 8px;">${winner.name}</h2>
+                                <p style="font-size: 1.5rem; color: #f39c12; font-weight: bold;">⭐ ${winner.stars} BINTANG</p>
+                                <p style="color: #7f8c8d; font-size: 0.9rem; margin-top: 10px;">Tahniah! Anda telah menguasai topik penyusuan susu ibu dengan cemerlang!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bahagian Tengah: Papan Kedudukan -->
+                    <div style="flex: 1.2;">
+                        <div style="background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 15px; border: 2px solid #3498db; height: 100%; display: flex; flex-direction: column;">
+                            <h3 style="color: #3498db; font-size: 1.3rem; margin-bottom: 15px; text-align: center;">📊 PAPAN KEDUDUKAN</h3>
+                            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto;">
+                                ${sortedPlayers.map((player, index) => {
+                                    let medal = '';
+                                    let bgColor = '';
+                                    if (index === 0) { medal = '🥇'; bgColor = 'linear-gradient(135deg, #ffd700, #ffed4e)'; }
+                                    else if (index === 1) { medal = '🥈'; bgColor = 'linear-gradient(135deg, #c0c0c0, #e8e8e8)'; }
+                                    else if (index === 2) { medal = '🥉'; bgColor = 'linear-gradient(135deg, #cd7f32, #daa520)'; }
+                                    else { medal = `${index + 1}.`; bgColor = 'linear-gradient(135deg, #f8f9fa, #e9ecef)'; }
+                                    
+                                    return `
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: ${bgColor}; border-radius: 8px; border: 2px solid ${index < 3 ? '#f39c12' : '#ddd'}; min-height: 45px;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <span style="font-size: 1.2rem; font-weight: bold;">${medal}</span>
+                                                <span style="font-size: 1rem; font-weight: bold; color: #2c3e50;">${player.name}</span>
+                                            </div>
+                                            <span style="font-size: 1.1rem; font-weight: bold; color: #f39c12;">⭐ ${player.stars}</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bahagian Kanan: Butang Permainan Baharu -->
+                    <div style="flex: 0.5; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; color: white;">
+                            <p style="color: rgba(255,255,255,0.9); font-style: italic; font-size: 0.9rem; margin: 0 0 20px 0;">Terima kasih kerana bermain! Teruskan pembelajaran tentang penyusuan susu ibu. 💪</p>
+                            <button onclick="resetGame()" style="background: linear-gradient(45deg, #3498db, #2980b9); color: white; border: none; padding: 15px 25px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);">🆕 Permainan Baharu</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('gameEndOverlay').style.display = 'block';
+        }
+
+        // Fungsi untuk reset permainan
+        function resetGame() {
+            gameActive = false;
+            clearInterval(gameTimer);
+            clearTimeout(questionTimer);
+            
+            players = [];
+            timeLeft = gameTime * 60;
+            totalStars = 0;
+            currentPlayer = null;
+            usedQuestions = [];
+            currentQuestion = null;
+            
+            updateTimerDisplay();
+            updatePlayersDisplay();
+            updateWheel();
+            updateStarsDisplay();
+            
+            document.getElementById('startBtn').textContent = '🚀 Mula Permainan';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('addPlayerBtn').style.display = 'inline-block';
+            document.getElementById('exitBtn').style.display = 'none';
+            
+            // Sembunyikan overlay
+            document.getElementById('gameEndOverlay').style.display = 'none';
+            document.getElementById('questionOverlay').style.display = 'none';
+            
+            document.getElementById('questionPanel').innerHTML = `
+                <h3>Panel Soalan</h3>
+                <p>Putar roda untuk memilih pemain dan menjawab soalan!</p>
+            `;
+        }
+        
+        // Fungsi untuk keluar dari permainan
+        function exitGame() {
+            resetGame();
+            showFeedback('👋 Terima kasih kerana bermain!', 'success');
+        }
+
+        // Fungsi untuk memutar roda
+        function spinWheel() {
+            if (!gameActive || players.length === 0) {
+                showFeedback('⚠️ Sila mulakan permainan dan tambah pemain terlebih dahulu!', 'warning');
+                return;
+            }
+
+            // Periksa jika masa sudah habis
+            if (timeLeft <= 0) {
+                showFeedback('⏰ Masa permainan telah tamat!', 'warning');
+                return;
+            }
+
+            const wheel = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spinBtn');
+            
+            spinBtn.disabled = true;
+            
+            // Random rotation (2-3 full rotations + random angle)
+            const randomRotation = (Math.random() * 360) + (720 + Math.random() * 360);
+            wheel.style.transform = `rotateZ(${randomRotation}deg)`;
+            
+            setTimeout(() => {
+                // Periksa lagi jika masa masih ada selepas putaran
+                if (!gameActive || timeLeft <= 0) {
+                    spinBtn.disabled = false;
+                    return;
+                }
+                
+                // Calculate which player was selected - betulkan pengiraan
+                const segmentAngle = 360 / players.length;
+                const normalizedAngle = (randomRotation % 360);
+                // Penanda berada di bahagian atas (0 darjah), jadi kira dari situ
+                const adjustedAngle = (360 - normalizedAngle + (segmentAngle / 2)) % 360;
+                const selectedIndex = Math.floor(adjustedAngle / segmentAngle) % players.length;
+                
+                currentPlayer = players[selectedIndex];
+                showSelectedPlayer();
+                spinBtn.disabled = false;
+            }, 2000);
+        }
+
+        // Fungsi untuk menunjukkan pemain terpilih
+        function showSelectedPlayer() {
+            // Cari segmen nama yang terpilih dan tambah animasi berkelip
+            const nameSegments = document.querySelectorAll('.name-segment');
+            const segmentAngle = 360 / players.length;
+            const selectedIndex = players.indexOf(currentPlayer);
+            
+            if (nameSegments[selectedIndex]) {
+                nameSegments[selectedIndex].classList.add('selected-segment');
+                
+                // Buang kelas animasi selepas 2 saat
+                setTimeout(() => {
+                    nameSegments[selectedIndex].classList.remove('selected-segment');
+                }, 2000);
+            }
+            
+            document.getElementById('selectedPlayerName').textContent = currentPlayer.name;
+            document.getElementById('selectedPlayerModal').style.display = 'flex';
+            
+            setTimeout(() => {
+                document.getElementById('selectedPlayerModal').style.display = 'none';
+                showQuestion();
+            }, 2000);
+        }
+
+        // Fungsi untuk menunjukkan soalan
+        function showQuestion() {
+            // Periksa jika permainan masih aktif dan masa masih ada
+            if (!gameActive || timeLeft <= 0) {
+                return;
+            }
+            
+            // Cari soalan yang belum digunakan
+            let availableQuestions = questions.filter((_, index) => !usedQuestions.includes(index));
+            
+            // Jika semua soalan sudah digunakan, reset
+            if (availableQuestions.length === 0) {
+                usedQuestions = [];
+                availableQuestions = questions;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            const questionIndex = questions.indexOf(availableQuestions[randomIndex]);
+            currentQuestion = questions[questionIndex];
+            usedQuestions.push(questionIndex);
+            
+            const overlayContent = document.getElementById('overlayContent');
+            overlayContent.innerHTML = `
+                <h3 style="color: #3498db; margin-bottom: 15px;">🎯 Giliran: ${currentPlayer.name}</h3>
+                <div style="font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6; color: #2c3e50; font-weight: bold;">${currentQuestion.question}</div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    ${currentQuestion.answers.map((answer, index) => `
+                        <button class="answer-btn" onclick="checkAnswer(${index}, ${currentQuestion.correct})" style="background: linear-gradient(45deg, #95a5a6, #7f8c8d); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-size: 16px; transition: all 0.3s ease; text-align: left;">
+                            ${String.fromCharCode(65 + index)}. ${answer}
+                        </button>
+                    `).join('')}
+                </div>
+                <div style="text-align: center; margin-top: 15px; color: #e74c3c; font-weight: bold; font-size: 1.2rem;">
+                    ⏰ Masa: <span id="questionCountdown">10</span> saat
+                </div>
+            `;
+            
+            // Tunjukkan overlay
+            document.getElementById('questionOverlay').style.display = 'block';
+            
+            // Mulakan countdown 10 saat
+            let countdown = 10;
+            const countdownElement = document.getElementById('questionCountdown');
+            
+            questionTimer = setInterval(() => {
+                countdown--;
+                if (countdownElement) {
+                    countdownElement.textContent = countdown;
+                }
+                
+                // Periksa jika permainan masih aktif
+                if (!gameActive || timeLeft <= 0) {
+                    clearInterval(questionTimer);
+                    hideQuestionOverlay();
+                    return;
+                }
+                
+                if (countdown <= 0) {
+                    clearInterval(questionTimer);
+                    hideQuestionOverlay();
+                    showTimeoutModal();
+                }
+            }, 1000);
+        }
+
+        // Fungsi untuk menyembunyikan overlay soalan
+        function hideQuestionOverlay() {
+            document.getElementById('questionOverlay').style.display = 'none';
+        }
+
+        // Fungsi untuk memeriksa jawapan
+        function checkAnswer(selectedIndex, correctIndex) {
+            // Periksa jika permainan masih aktif
+            if (!gameActive || timeLeft <= 0) {
+                return;
+            }
+            
+            // Hentikan timer soalan
+            clearInterval(questionTimer);
+            
+            const answerBtns = document.querySelectorAll('.answer-btn');
+            
+            // Disable all buttons
+            answerBtns.forEach(btn => btn.disabled = true);
+            
+            const correctMessages = [
+                "🎉 Hebat! Jawapan tepat sekali!",
+                "⭐ Cemerlang! Anda memang pakar!",
+                "🏆 Bravo! Pengetahuan yang luar biasa!",
+                "✨ Tahniah! Jawapan yang sempurna!",
+                "🌟 Excellent! Teruskan usaha!",
+                "🎯 Tepat sasaran! Anda memang terbaik!",
+                "💫 Fantastik! Penguasaan yang mengagumkan!",
+                "🚀 Luar biasa! Anda semakin mahir!"
+            ];
+            
+            if (selectedIndex === correctIndex) {
+                answerBtns[selectedIndex].style.background = 'linear-gradient(45deg, #27ae60, #229954)';
+                answerBtns[selectedIndex].style.transform = 'scale(1.05)';
+                answerBtns[selectedIndex].style.boxShadow = '0 0 20px rgba(39, 174, 96, 0.6)';
+                
+                currentPlayer.stars++;
+                totalStars++;
+                
+                const randomCorrectMsg = correctMessages[Math.floor(Math.random() * correctMessages.length)];
+                
+                // Animate star gain
+                createStarAnimation();
+                
+                setTimeout(() => {
+                    hideQuestionOverlay();
+                    document.getElementById('questionPanel').innerHTML = `
+                        <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #a8e6cf, #dcedc1); border-radius: 15px; border: 3px solid #27ae60;">
+                            <h3 style="color: #27ae60; font-size: 1.5rem; margin-bottom: 15px;">${randomCorrectMsg}</h3>
+                            <div style="font-size: 3rem; margin: 15px 0;">⭐</div>
+                            <p style="font-size: 1.2rem; color: #2c3e50; font-weight: bold;">${currentPlayer.name} +1 Bintang!</p>
+                            <p style="color: #7f8c8d;">Putar roda untuk soalan seterusnya 🎲</p>
+                        </div>
+                    `;
+                }, 1500);
+            } else {
+                answerBtns[selectedIndex].style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+                answerBtns[selectedIndex].style.transform = 'scale(0.95)';
+                answerBtns[correctIndex].style.background = 'linear-gradient(45deg, #27ae60, #229954)';
+                answerBtns[correctIndex].style.transform = 'scale(1.05)';
+                answerBtns[correctIndex].style.boxShadow = '0 0 20px rgba(39, 174, 96, 0.6)';
+                
+                // Tunjukkan modal jawapan salah
+                showWrongAnswerModal(currentQuestion.answers[correctIndex]);
+                
+                setTimeout(() => {
+                    hideQuestionOverlay();
+                    document.getElementById('questionPanel').innerHTML = `
+                        <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #ffb3ba, #ffdfba); border-radius: 15px; border: 3px solid #e74c3c;">
+                            <h3 style="color: #e74c3c; font-size: 1.3rem; margin-bottom: 15px;">💪 Jangan putus asa! Cuba lagi!</h3>
+                            <div style="font-size: 2.5rem; margin: 15px 0;">💡</div>
+                            <p style="color: #2c3e50; font-weight: bold;">Jawapan betul telah ditunjukkan ✨</p>
+                            <p style="color: #7f8c8d;">Putar roda untuk cuba lagi 🎯</p>
+                        </div>
+                    `;
+                }, 3500);
+            }
+            
+            updatePlayersDisplay();
+            updateStarsDisplay();
+        }
+
+        // Fungsi untuk menunjukkan modal jawapan salah
+        function showWrongAnswerModal(correctAnswer) {
+            document.getElementById('correctAnswerText').textContent = `Jawapan betul: ${correctAnswer}`;
+            document.getElementById('wrongAnswerModal').style.display = 'flex';
+            
+            setTimeout(() => {
+                document.getElementById('wrongAnswerModal').style.display = 'none';
+            }, 2000);
+        }
+
+        // Fungsi untuk menunjukkan modal masa tamat
+        function showTimeoutModal() {
+            document.getElementById('timeoutModal').style.display = 'flex';
+            
+            setTimeout(() => {
+                document.getElementById('timeoutModal').style.display = 'none';
+                document.getElementById('questionPanel').innerHTML = `
+                    <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #ffd93d, #ff6b6b); border-radius: 15px; border: 3px solid #f39c12;">
+                        <h3 style="color: #e67e22; font-size: 1.3rem; margin-bottom: 15px;">⏰ Masa Tamat!</h3>
+                        <div style="font-size: 2.5rem; margin: 15px 0;">😔</div>
+                        <p style="color: #2c3e50; font-weight: bold;">Giliran ${currentPlayer.name} terlepas!</p>
+                        <p style="color: #7f8c8d;">Putar roda untuk pemain seterusnya 🎲</p>
+                    </div>
+                `;
+            }, 2000);
+        }
+
+        // Fungsi untuk mengemas kini paparan bintang
+        function updateStarsDisplay() {
+            document.getElementById('starCount').textContent = totalStars;
+        }
+
+        // Fungsi untuk menunjukkan maklumbalas
+        function showFeedback(message, type = 'success') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.feedback-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `feedback-toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Fungsi untuk animasi bintang
+        function createStarAnimation() {
+            const star = document.createElement('div');
+            star.innerHTML = '⭐';
+            star.style.cssText = `
+                position: fixed;
+                font-size: 2rem;
+                z-index: 1000;
+                pointer-events: none;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                animation: starBurst 1.5s ease-out forwards;
+            `;
+            
+            // Add keyframe animation
+            if (!document.querySelector('#starAnimation')) {
+                const style = document.createElement('style');
+                style.id = 'starAnimation';
+                style.textContent = `
+                    @keyframes starBurst {
+                        0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 1; }
+                        50% { transform: translate(-50%, -50%) scale(1.5) rotate(180deg); opacity: 1; }
+                        100% { transform: translate(-50%, -50%) scale(0.5) rotate(360deg); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1500);
+        }
+
+        // Initialize display
+        updatePlayersDisplay();
+        updateTimerDisplay();
+        updateStarsDisplay();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99064a39b36186be',t:'MTc2MDc3MjIwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
